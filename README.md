@@ -41,6 +41,11 @@ please try and tell me.
     region 3 (        GbE): 0x5f6000 - 0x5f7fff
     region 4 (   platform): 0x5f8000 - 0x5fffff
 
+ The output starts with some internal register content.
+ The number of components is the number of SPI flash devices used in the hardware (1 or 2). If this is 2, you must dump two flash devices.
+ Density is the size of each component. OEM string may be Lenovo specific. For each region the number, name and first and last offset
+ in the flash is given.
+ 
 ## Disclaimer
 
 You use this tool on your own risk! If you use it to eventually create a new binary file to flash into the BIOS device,
