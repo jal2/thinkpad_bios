@@ -54,6 +54,6 @@ please check twice, as a bad BIOS may in the worst case permanently damage your 
 ## Links
 * flashrom tool (http://flashrom.org/Flashrom) - I've used it with a Bus Pirate and a Raspberry PI to dump the SPI flash.
 * "Intel 7 Series Chipset and Intel C216 Chipset SPI Programming Guide" (ftp://ftp.nexcom.com/pub/Drivers/NDiSM532/ME/ME8_5M_8.0.13.1502/ME8_5M_8.0.13.1502/SPI%20Programming%20Guide.pdf) - contains a description of the flash descriptor section
-
+* UEFITool (https://github.com/LongSoft/UEFITool/) - much more powerful tool which delivers the above information as well
 
 
