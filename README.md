@@ -26,20 +26,20 @@ please try and tell me.
   ./tp_bios.py -w out bios.bin
 
 ## Example Output
-   ./tp_bios.py X200s.bin
-   signature 0x0ff0a55a at offset 0x0
-   FLMAPs: 0x04040001 0x02100206 0x00000120
-   FRBA 0x40 FCBA 0x10 FMBA 0x60 FMSBA 0x200
-   number of components: 1
-   number of masters: 2
-   frequencies: read 20 Mhz write/erase 20 Mhz fast read 33 Mhz
-   density: component_1 8192 KB
-   OEM string (@0xf00): 7UR512WW
-   region 0 ( descriptor): 0x000000 - 0x000fff
-   region 1 (       BIOS): 0x600000 - 0x7fffff
-   region 2 (    IntelME): 0x001000 - 0x5f5fff
-   region 3 (        GbE): 0x5f6000 - 0x5f7fff
-   region 4 (   platform): 0x5f8000 - 0x5fffff
+    ./tp_bios.py X200s.bin
+    signature 0x0ff0a55a at offset 0x0
+    FLMAPs: 0x04040001 0x02100206 0x00000120
+    FRBA 0x40 FCBA 0x10 FMBA 0x60 FMSBA 0x200
+    number of components: 1
+    number of masters: 2
+    frequencies: read 20 Mhz write/erase 20 Mhz fast read 33 Mhz
+    density: component_1 8192 KB
+    OEM string (@0xf00): 7UR512WW
+    region 0 ( descriptor): 0x000000 - 0x000fff
+    region 1 (       BIOS): 0x600000 - 0x7fffff
+    region 2 (    IntelME): 0x001000 - 0x5f5fff
+    region 3 (        GbE): 0x5f6000 - 0x5f7fff
+    region 4 (   platform): 0x5f8000 - 0x5fffff
 
 ## Disclaimer
 
