@@ -10,3 +10,11 @@ What's left to do (no specific order) ?
 
 4) Document how we can process an official Lenovo BIOS (.exe, .iso) into
    a .WPH and .bin file.
+
+5) Think about the SLIC entry in the BIOS - just overwriting the BIOS section
+   of a SPI flash device with the section from a *.WPH file will probably
+   remove any SLIC / SLP in ACPI. If #2 above is solved, we may be able 
+   to extract the SLIC / SLP entry from the flash device unless it got 
+   corrupted by the failed BIOS update. We may try to add a SLIC2.1 to
+   the BIOS prior to writing it to flash - similar to the phoenix tools
+   linked in the README.  But why does it need the complete ACPI table?
