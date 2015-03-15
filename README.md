@@ -19,13 +19,21 @@ please try and tell me.
 
 ## Examples
 - show a short help text:
+
     ./tp_bios.py -h
+
 - dump register information and do some basic consistency check on BIOS dump in bios.bin:
+
     ./tp_bios.py bios.bin
+
 - additionally write the different regions to the files out.{descriptor,bios,intelme,platform,gbe}:
+
     ./tp_bios.py -w out bios.bin
+
 - write a layout file which may be used by flashrom into layout:
+
     ./tp_bios.py -l layout bios.bin
+
 
 ## Example Output
     ./tp_bios.py X200s.bin
