@@ -36,10 +36,11 @@ signature = 0x0ff0a55a
 frba = 0
 nr_err = 0 # incremented for each error which prevents us from writing
 # names of the regions
-reg_names = [ "descriptor", "BIOS", "IntelME", "GbE", "platform" ]
+reg_names = [ "descriptor", "bios", "intelme", "gbe", "platform" ]
+layoutname="" # if != "" write a flashrom layout file into this filename
 
 def usage(name):
-    print ('%s [-h] | [-w outputfile] inputfile' % name)
+    print ('%s [-h] | [-w outputfile] [-l] inputfile' % name)
 
 # get a 32 bit value (little endian!) from the bios field at offset
 def get_u32(bios, offset):
@@ -123,7 +124,7 @@ def get_region(bios,nr):
     return (base,limit)
 
 try:
-    opts,args = getopt.getopt(sys.argv[1:],"hvw:")
+    opts,args = getopt.getopt(sys.argv[1:],"hvl:w:")
 except getopt.GetoptError:
     usage(sys.argv[0])
     sys.exit(1)
@@ -136,6 +137,8 @@ for opt,arg in opts:
         verbose = verbose+1
     elif opt == '-w':
         outputname = arg
+    elif opt == '-l':
+        layoutname = arg
 
 if len(args) < 1:
     print "#ERR missing input file"
@@ -167,11 +170,12 @@ for i in range(0,len(reg_names)):
     else:
         print " region %u (%11s): unused"
 
+if nr_err > 0:
+    print "#ERR not writing components or layout due to previous errors above"
+    sys.exit(4)
+
 if outputname != "":
 # we write the components
-    if nr_err > 0:
-        print "#ERR not writing components due to previous errors above"
-        sys.exit(4)
     for i in range(0,len(reg_names)):
         (base,limit) = get_region(bios,i)
         if i == 0 or limit != 0xfff:
@@ -180,3 +184,11 @@ if outputname != "":
             ofile.close()
         else:
             print "skipping unused region %s for output" % (reg_names[i])
+
+if layoutname != "":
+    ofile = open(layoutname, "w")
+    for i in range(0,len(reg_names)):
+        (base,limit) = get_region(bios,i)
+        if i == 0 or limit != 0xfff:
+            ofile.write("%08x:%08x %s\n" % (base,limit,reg_names[i]))
+    ofile.close()
