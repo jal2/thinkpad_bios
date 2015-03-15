@@ -1,0 +1,12 @@
+What's left to do (no specific order) ?
+
+1) Document a way to update a single section using flashrom
+
+2) Add code to scan the BIOS modules, try to find the BIOS version.
+   I guess it is in compressed code, strings didn't show it.
+
+3) If we try to recover the BIOS after a bad update, it would help
+   to know the version of the EC currently flashed.
+
+4) Document how we can process an official Lenovo BIOS (.exe, .iso) into
+   a .WPH and .bin file.
