@@ -47,12 +47,28 @@ def get_u32(bios, offset):
     return bios[offset] | (bios[offset+1]<<8) | \
         (bios[offset+2]<<16) | bios[offset+3]<<24
 
+# get a 16 bit value (little endian) from the bios field at offset
+def get_u16(bios, offset):
+    return bios[offset] | (bios[offset+1]<<8)
+
+# sum up 16 bit values in a bios region
+# start at byte offset start, sum up nr many u16 values 
+def sum_u16(bios,start,nr):
+    sum = 0
+    for i in range(0,nr):
+        sum += get_u16(bios,start+2*i)
+    return sum
+
 # look for signature and return its offset from start
 def search_sig(bios,sig):
     for i in range(0,40,4):
         if get_u32(bios,i) == sig:
             return i
     return -1
+
+#dump GbE info
+def dump_gbe(p, f):
+    print "%s MAC %02x-%02x-%02x-%02x-%02x-%02x" % (p, f[0],f[1],f[2],f[3],f[4],f[5])
 
 # convert a three bit frequency encoding into a string
 def freq(code):
@@ -157,7 +173,7 @@ print "signature 0x%08x at offset 0x%x" % (signature,sigoff)
 get_regs(bios, sigoff)
 print "OEM string (@0xf00): %s" % (get_oem_descr(bios))
 
-# dump the regions
+# dump the regions' limit
 for i in range(0,len(reg_names)):
     (base,limit) = get_region(bios,i)
     # all regions > 0 must have a limit > 0xfff, otherwise they are unused 
@@ -169,6 +185,20 @@ for i in range(0,len(reg_names)):
             nr_err += 1
     else:
         print " region %u (%11s): unused"
+
+# dump some info about the GbE region
+(base,limit) = get_region(bios,3)
+if limit != 0xfff:
+    chk1 = sum_u16(bios, base, 0x40) & 0xffff
+    chk2 = sum_u16(bios, base+0x1000, 0x40) & 0xffff
+    if chk1 == 0xbaba:
+        dump_gbe("GbE1",bios[base:(base+0x80)])
+    else:
+        print "#WRG GbE first entry invalid checksum 0x%04x" % (chk1)
+    if chk2 == 0xbaba:
+        dump_gbe("GbE2",bios[(base+0x1000):(base+0x1040)])
+    else:
+        print "#WRG GbE second entry invalid checksum 0x%04x" % (chk2)
 
 if nr_err > 0:
     print "#ERR not writing components or layout due to previous errors above"

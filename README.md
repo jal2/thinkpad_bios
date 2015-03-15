@@ -66,4 +66,6 @@ please check twice, as a bad BIOS may in the worst case permanently damage your 
 * "Intel 7 Series Chipset and Intel C216 Chipset SPI Programming Guide" (ftp://ftp.nexcom.com/pub/Drivers/NDiSM532/ME/ME8_5M_8.0.13.1502/ME8_5M_8.0.13.1502/SPI%20Programming%20Guide.pdf) - contains a description of the flash descriptor section
 * UEFITool (https://github.com/LongSoft/UEFITool/) - much more powerful tool which delivers the above information as well
 * Phoenix Tools (http://forums.mydigitallife.info/threads/13194-Tool-to-Insert-Replace-SLIC-in-Phoenix-Insyde-Dell-EFI-BIOSes) to deal with pre-UEFI Lenovo BIOS files. This contains, among many other tools, the one to uncompress a BIOS .FL1 file into a .WPH
+* Libreboot notes on X200 with a lot of links: http://www.libreboot.org/docs/hcl/x200_remove_me.html
+* "Intel® I/O Controller Hub 9M/82567LF/LM/V NVM Map and Information Guide" (http://www.intel.co.uk/content/dam/doc/application-note/i-o-controller-hub-9m-82567lf-lm-v-nvm-map-appl-note.pdf) - page 8 describes the layout of the GbE region
 
