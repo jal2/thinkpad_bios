@@ -75,12 +75,14 @@ These steps solved the problem:
 5. Update the IntelME section of the SPI IC with the one extracted from the .wph file, thereby keeping the GbE and platform sections. We used a RaspberryPi and the flashrom program.
 6. Solder the IC back into the X200s. Actually we replaced it with a SO-IC8 device to be able to contact the pins more easily in the future.
 
+Updating the IntelME section while the IC is attached to the PCB may fail, because the management engine (ME) is active as soon as the notebook has an AC adapter attached.
+However recovering a bad BIOS flash should work fine, when the power supply is attached, but the notebook is switched off.
 
 ## Links
 * flashrom tool (http://flashrom.org/Flashrom) - I've used it with a Bus Pirate and a Raspberry PI to dump the SPI flash.
 * "Intel 7 Series Chipset and Intel C216 Chipset SPI Programming Guide" (ftp://ftp.nexcom.com/pub/Drivers/NDiSM532/ME/ME8_5M_8.0.13.1502/ME8_5M_8.0.13.1502/SPI%20Programming%20Guide.pdf) - contains a description of the flash descriptor section
 * UEFITool (https://github.com/LongSoft/UEFITool/) - much more powerful tool which delivers the above information as well
-* Phoenix Tools (http://forums.mydigitallife.info/threads/13194-Tool-to-Insert-Replace-SLIC-in-Phoenix-Insyde-Dell-EFI-BIOSes) to deal with pre-UEFI Lenovo BIOS files. This contains, among many other tools, the one to uncompress a BIOS .FL1 file into a .WPH
+* Phoenix Tools (http://forums.mydigitallife.info/threads/13194-Tool-to-Insert-Replace-SLIC-in-Phoenix-Insyde-Dell-EFI-BIOSes) to deal with pre-UEFI Lenovo BIOS files. This contains, among many other tools, one called e_bcpvpw.exe to uncompress a BIOS .FL1 file into a .WPH
 * Libreboot notes on X200 with a lot of links: http://www.libreboot.org/docs/hcl/x200_remove_me.html
 * "Intel® I/O Controller Hub 9M/82567LF/LM/V NVM Map and Information Guide" (http://www.intel.co.uk/content/dam/doc/application-note/i-o-controller-hub-9m-82567lf-lm-v-nvm-map-appl-note.pdf) - page 8 describes the layout of the GbE region
 * Endeer's Phoenix BIOS tools: http://www.endeer.cz/bios.tools/
