@@ -61,6 +61,21 @@ please try and tell me.
 You use this tool on your own risk! If you use it to eventually create a new binary file to flash into the BIOS device,
 please check twice, as a bad BIOS may in the worst case permanently damage your hardware.
 
+## Application Example
+A while ago I got a Thinkpad X200s which showed a ten minutes delay between power on and the BIOS welcome screen. BIOS up- and downgrade didn't help.
+As Windows' ME driver failed as well, we assumed that the IntelME firmware in the SPI flash got corrupted. Apart from the problems before, everything
+else worked fine - the X200s booted Windows or Linux, just with a ten minutes delay.
+
+These steps solved the problem:
+
+1. install a matching Lenovo BIOS on a Linux PC using wine and find the matching *.FL1 - this contains the compressed BIOS
+2. uncompress the *.FL1 file with the tool e_bcpvpw.exe (with wine :-) yielding a *.wph file
+3. Take the first 0x800000 bytes from the .wph file. This is a SPI image, which can be processed by tp_bios.py, but the GbE and platform section are invalid.
+4. Unsolder the SPI flash from the X200s (maybe not necessary, but we had problems to reliably contact the pins of the WSON package)
+5. Update the IntelME section of the SPI IC with the one extracted from the .wph file, thereby keeping the GbE and platform sections. We used a RaspberryPi and the flashrom program.
+6. Solder the IC back into the X200s. Actually we replaced it with a SO-IC8 device to be able to contact the pins more easily in the future.
+
+
 ## Links
 * flashrom tool (http://flashrom.org/Flashrom) - I've used it with a Bus Pirate and a Raspberry PI to dump the SPI flash.
 * "Intel 7 Series Chipset and Intel C216 Chipset SPI Programming Guide" (ftp://ftp.nexcom.com/pub/Drivers/NDiSM532/ME/ME8_5M_8.0.13.1502/ME8_5M_8.0.13.1502/SPI%20Programming%20Guide.pdf) - contains a description of the flash descriptor section
@@ -68,4 +83,4 @@ please check twice, as a bad BIOS may in the worst case permanently damage your 
 * Phoenix Tools (http://forums.mydigitallife.info/threads/13194-Tool-to-Insert-Replace-SLIC-in-Phoenix-Insyde-Dell-EFI-BIOSes) to deal with pre-UEFI Lenovo BIOS files. This contains, among many other tools, the one to uncompress a BIOS .FL1 file into a .WPH
 * Libreboot notes on X200 with a lot of links: http://www.libreboot.org/docs/hcl/x200_remove_me.html
 * "Intel® I/O Controller Hub 9M/82567LF/LM/V NVM Map and Information Guide" (http://www.intel.co.uk/content/dam/doc/application-note/i-o-controller-hub-9m-82567lf-lm-v-nvm-map-appl-note.pdf) - page 8 describes the layout of the GbE region
-
+* Endeer's Phoenix BIOS tools: http://www.endeer.cz/bios.tools/
