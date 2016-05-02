@@ -86,3 +86,27 @@ However recovering a bad BIOS flash should work fine, when the power supply is a
 * Libreboot notes on X200 with a lot of links: http://www.libreboot.org/docs/hcl/x200_remove_me.html
 * "Intel® I/O Controller Hub 9M/82567LF/LM/V NVM Map and Information Guide" (http://www.intel.co.uk/content/dam/doc/application-note/i-o-controller-hub-9m-82567lf-lm-v-nvm-map-appl-note.pdf) - page 8 describes the layout of the GbE region
 * Endeer's Phoenix BIOS tools: http://www.endeer.cz/bios.tools/
+
+#ENE KB9012 image locator
+A tool to detect and extract an ENE KB9012 image from a binary file.
+
+## Description
+Some Thinkpads, e.g. S531 or some Edges, contain an ENE KB9012 as the embedded controller. This chip has an internal flash of 128KByte and is writable using some of the
+keyboard pins, e.g. by using flashrom with some patches.
+
+The flash image is hidden inside the .FL1 file of the BIOS update.
+This tool tries to detect and extract the image into a separate file.
+Look into the Python script for the values we look for in order to detect a valid image.
+
+## Examples
+- show a short help text:
+
+  ./kb9012_image.py -h
+
+- look for the offset of the ENE KB9012 image. Will detect multiple images if the matching rules are too weak.
+
+  ./kb9012_image.py file.FL1
+
+- extract the first EKB9012 image found into a file
+
+  ./kb9012_image.py -w ec.bin file.FL1
