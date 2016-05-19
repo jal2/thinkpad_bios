@@ -66,9 +66,92 @@ def search_sig(bios,sig):
             return i
     return -1
 
+# print the PCI init control word
+def print_pci_init_ctrl(off,val):
+    str= ""
+    if val & 0x80: str = str + "AUX power"
+    if val & 0x40: str = str + ",PME enabled"
+    if val & 2: str = str + ",load subsys id"
+    if val & 1: str = str + ",load device id"
+    print "  PCI Init Ctrl: %s" % (str)
+
+# print lan power consumption
+def print_lan_power(off,val):
+    d0 = (val >> 8) * 100
+    d3 = (val & 0x1f) * 100
+    print "  LAN power consumption: D0 %u mW D3 %u mW" % (d0,d3)
+
+# print shared init control word
+def print_shared_init_ctrl(off,val):
+    sign = (val >> 14)
+    phyt = (val >> 6) & 3
+    str = "valid" if sign == 2 else "invalid"
+    str = str + ",MACsec " + ("disabled" if val & (1<<13) else "enabled")
+    str = str + ",PHY powerdown " + ("enabled" if val & (1<<9) else "disabled")
+    str = str + ",PHY_type=" + ("82579" if phyt == 0 else "unknown (%u)" % phyt)
+    if val & (1<<4):
+        str = str + ",force_speed"
+    if val & (1<<3):
+        str = str + ",force_duplex"
+    if val & (1<<1):
+        str = str + ",reduceDMAfreq"
+    if val & (1<<0):
+        str = str + ",dynClockGating"
+    print "  Shared Init Ctrl: " + str
+
+# print extended configuration words
+# return the pointer to the extended config as a byte offset
+def print_ext_config_words(off,val1, val2):
+    # pointer in DWORDS !
+    pointer = val1 & 0xfff
+    len = val2 >> 8
+    str = "PHY Write " + ("enabled" if val1 & (1<<13) else "disabled")
+    str = str + ",OEM Write " + ("enabled" if val1 & (1<<12) else "disabled")
+    str = str + ",ExtCfgPointer=0x%x" % (pointer)
+    str = str + ",ExtCfgLen=0x%x" % (len)
+    print "  Ext Config Words: " + str
+    return (pointer * 4, len * 4)
+
+# print OEM config defaults
+def print_oem_config_defaults(off,val):
+    str=""
+    if val & (1<<14):
+        str = str + "GbE disabled,"
+    if val & (1<<11):
+        str = str + "GbE disabled in non-D0a,"
+    if val & (1<<10):
+        str = str + "LowPowerLinkUp enabled in non-D0a,"
+    if val & (1<<9):
+        str = str + "LowPowerLinkUp enabled in D0a,"
+    print "  OEM Config Defaults: " + str
+
+# print reserved register 0x1a
+def print_reserved_reg1a(off,val):
+    print "  Reserved Reg 0x1a: APM " + ("enabled" if val & 1 else "disabled")
+
+#dump GbE info for the 82579 PHY (Thinkpad T520 etc.)
+# some regs may apply to other phy as well
+# move them to some other proc when we add other phy
+def dump_gbe_82579(prefix, area):
+    val = get_u16(area, 2*0xa)
+    print_pci_init_ctrl(0xa,val)
+    if val & 0x40:
+        val = get_u16(area, 2*0x10)
+        print_lan_power(0x10,val)
+    print_shared_init_ctrl(0x13, get_u16(area, 2*0x13))
+    (extOff,extlen) = print_ext_config_words(0x14, get_u16(area,2*0x14), get_u16(area,2*0x15))
+    print_oem_config_defaults(0x17, get_u16(area,2*0x17))
+    print_reserved_reg1a(0x1a, get_u16(area, 2*0x1a))
+
 #dump GbE info
-def dump_gbe(p, f):
+def dump_gbe_fields(p, f):
     print "%s MAC %02x-%02x-%02x-%02x-%02x-%02x" % (p, f[0],f[1],f[2],f[3],f[4],f[5])
+    subsys_id = get_u16(f, 0x16)
+    subsys_vendid = get_u16(f, 0x18)
+    device_id = get_u16(f, 0x1a)
+    print "  subsystem_id %04x vendor_id %04x device_id %04x" % (subsys_id, subsys_vendid, device_id)
+    if device_id == 0x1502 or device_id == 0x1503:
+        dump_gbe_82579(p,f)
 
 # convert a three bit frequency encoding into a string
 def freq(code):
@@ -139,6 +222,19 @@ def get_region(bios,nr):
     limit = (reg & 0x1fff0000)>>4 | 0xfff
     return (base,limit)
 
+# dump some info about the GbE region
+def dump_gbe(bios, base, limit):
+    chk1 = sum_u16(bios, base, 0x40) & 0xffff
+    if chk1 == 0xbaba:
+        dump_gbe_fields("GbE1",bios[base:(base+0x1000)])
+    else:
+        print "#WRG GbE first entry invalid checksum 0x%04x" % (chk1)
+        chk2 = sum_u16(bios, base+0x1000, 0x40) & 0xffff
+        if chk2 == 0xbaba:
+            dump_gbe_fields("GbE2",bios[(base+0x1000):(base+0x2000)])
+        else:
+            print "#ERR no GbE area has a valid checksum"
+
 try:
     opts,args = getopt.getopt(sys.argv[1:],"hvl:w:")
 except getopt.GetoptError:
@@ -184,21 +280,12 @@ for i in range(0,len(reg_names)):
                 (i, reg_names[i], limit, len(bios)-1)
             nr_err += 1
     else:
-        print " region %u (%11s): unused"
+        print " region %u (%11s): unused" % (i,reg_names[i])
 
 # dump some info about the GbE region
 (base,limit) = get_region(bios,3)
 if limit != 0xfff:
-    chk1 = sum_u16(bios, base, 0x40) & 0xffff
-    chk2 = sum_u16(bios, base+0x1000, 0x40) & 0xffff
-    if chk1 == 0xbaba:
-        dump_gbe("GbE1",bios[base:(base+0x80)])
-    else:
-        print "#WRG GbE first entry invalid checksum 0x%04x" % (chk1)
-    if chk2 == 0xbaba:
-        dump_gbe("GbE2",bios[(base+0x1000):(base+0x1040)])
-    else:
-        print "#WRG GbE second entry invalid checksum 0x%04x" % (chk2)
+    dump_gbe(bios,base,limit)
 
 if nr_err > 0:
     print "#ERR not writing components or layout due to previous errors above"
